@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Addressable Fire Alarm Panel</title>
+<!-- Library សម្រាប់បង្កើត QR Code -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Kantumruy+Pro:wght@400;600;700&family=Share+Tech+Mono&display=swap');
+
+*{
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body{
+  margin: 0;
+  padding: 12px;
+  background: #121416;
+  font-family: 'Battambang', 'Khmer OS Battambang', 'Kantumruy Pro', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* ផ្ទាំងបញ្ជាទូទៅ */
+.panel{
+  width: min(440px, 98vw);
+  background: linear-gradient(145deg, #2a2e33, #1d2024);
+  border: 3px solid #40474f;
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.15);
+  position: relative;
+}
+
+/* គ្រាប់វីសជ្រុងទាំង ៤ */
+.screw {
+  width: 10px;
+  height: 10px;
+  background: #5a626a;
+  border-radius: 50%;
+  position: absolute;
+  box-shadow: inset 1px 1px 2px rgba(0,0,0,0.8);
+}
+.screw::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: #1a1a1a;
+  margin-top: 4px;
+  transform: rotate(45deg);
+}
+.screw.tl { top: 7px; left: 7px; }
+.screw.tr { top: 7px; right: 7px; }
+.screw.bl { bottom: 7px; left: 7px; }
+.screw.br { bottom: 7px; right: 7px; }
+
+/* ផ្នែកក្បាលម៉ាស៊ីន */
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+.brand-title {
+  color: #cbd5e0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* របារប៊ូតុងជំនួយ (Refresh & QR Code & Wallpaper) */
+.system-actions {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+
+.action-btn {
+  flex: 1;
+  background: linear-gradient(180deg, #3182ce, #2b6cb0);
+  color: #ffffff;
+  border: 1px solid #1a365d;
+  border-radius: 6px;
+  padding: 6px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.action-btn:active {
+  transform: translateY(1px);
+  background: #2b6cb0;
+}
+
+.qr-btn {
+  background: linear-gradient(180deg, #38a169, #276749);
+  border-color: #1c4532;
+}
+
+.wp-btn {
+  background: linear-gradient(180deg, #805ad5, #553c9a);
+  border-color: #322659;
+}
+
+/* អំពូល LED សញ្ញា */
+.led-indicators {
+  display: flex;
+  gap: 10px;
+}
+.led-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: #a0aec0;
+}
+.led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #222;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.8);
+}
+.led.green-on { background: #00ff66; box-shadow: 0 0 6px #00ff66; }
+.led.red-on { background: #ff3333; box-shadow: 0 0 6px #ff3333; }
+.led.yellow-on { background: #ffcc00; box-shadow: 0 0 6px #ffcc00; }
+
+/* ប៊ូតុងខាងលើអេក្រង់ */
+.screen-header-btn {
+  width: 100%;
+  background: linear-gradient(180deg, #2b4c7e, #1a365d);
+  color: #e2e8f0;
+  border: 1px solid #0f2b48;
+  border-radius: 6px 6px 0 0;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+.screen-header-btn:active {
+  background: #1a365d;
+  transform: translateY(1px);
+}
+
+.screen{
+  height: 220px;
+  background-color: #0d1b0d;
+
+  border: 3px solid #253325;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  color: #33ff66;
+  font-family: 'Share Tech Mono', 'Battambang', 'Khmer OS Battambang', monospace;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.45;
+
+  overflow-y: auto;
+  padding: 10px;
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+  position: relative;
+  transition: background 0.2s ease;
+}
+
+/* ថ្នាក់សម្រាប់បង្ហាញ Wallpaper */
+.screen.has-wallpaper {
+  background-image: url('https://images.unsplash.com/photo-1517420704952-d9f39e95b43e?auto=format&fit=crop&w=600&q=80');
+  background-size: cover;
+  background-position: center;
+}
+
+/* ផ្ទាំង Background ខ្មៅស្ដើងៗប្រើតែពេលបង្ហាញម៉ោងធម្មតា */
+.clock-bg-box {
+  background: rgba(0, 0, 0, 0.68);
+  padding: 6px 10px;
+  border-radius: 6px;
+  display: inline-block;
+  backdrop-filter: blur(2px);
+  max-width: 100%;
+}
+
+.lcd-prompt {
+  color: #33ff66;
+  font-size: 18px;
+  font-weight: bold;
+  text-shadow: 0 0 4px rgba(51, 255, 102, 0.6);
+}
+
+.lcd-code {
+  color: #00ffff;
+  font-size: 20px;
+  font-weight: bold;
+  text-shadow: 0 0 4px rgba(0, 255, 255, 0.6);
+}
+
+.lcd-location-kh {
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 700;
+  margin: 4px 0 6px 0;
+}
+
+.lcd-sub-info {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.floor-mismatch {
+  color: #ff3333 !important;
+  font-weight: 700;
+  background: rgba(255, 51, 51, 0.15);
+  padding: 1px 4px;
+  border-radius: 4px;
+  border: 1px solid #ff3333;
+}
+
+.floor-card {
+  border-bottom: 1px solid #225522;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  width: 100%;
+}
+
+.screen::-webkit-scrollbar {
+  width: 5px;
+}
+.screen::-webkit-scrollbar-thumb {
+  background: #1c441c;
+  border-radius: 3px;
+}
+
+.controls{
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.col{
+  display: grid;
+  gap: 5px;
+}
+
+button.control-btn{
+  border-radius: 5px;
+  min-height: 32px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 6px;
+  transition: all 0.05s ease;
+}
+
+button.control-btn:active{
+  transform: translateY(2px);
+  box-shadow: none !important;
+}
+
+.func{
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  align-items: center;
+  text-align: left;
+}
+
+.code{
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.btn-fire {
+  background: linear-gradient(180deg, #e53e3e, #9b2c2c);
+  border: 1px solid #742a2a;
+  color: #ffffff;
+  box-shadow: 0 2px 0 #631717, 0 2px 4px rgba(0,0,0,0.4);
+}
+.btn-fire .code { color: #ffeb3b; }
+
+.btn-warning {
+  background: linear-gradient(180deg, #dd6b20, #9c4221);
+  border: 1px solid #7b341e;
+  color: #ffffff;
+  box-shadow: 0 2px 0 #652b19, 0 2px 4px rgba(0,0,0,0.4);
+}
+.btn-warning .code { color: #ffffff; }
+
+.btn-floor {
+  background: linear-gradient(180deg, #4a5568, #2d3748);
+  border: 1px solid #1a202c;
+  color: #e2e8f0;
+  box-shadow: 0 2px 0 #1a202c, 0 2px 4px rgba(0,0,0,0.4);
+}
+.btn-floor .code { color: #63b3ed; }
+
+.keypad{
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.keypad button{
+  min-height: 38px;
+  font-size: 17px;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.05s ease;
+}
+
+.keypad button:active{
+  transform: translateY(2px);
+  box-shadow: none !important;
+}
+
+.btn-num {
+  border: 1px solid #2d3748;
+  background: linear-gradient(180deg, #ffffff, #edf2f7);
+  color: #1a202c;
+  box-shadow: 0 3px 0 #cbd5e0, 0 3px 5px rgba(0,0,0,0.4);
+}
+
+.delete-btn {
+  border: 1px solid #9b2c2c;
+  background: linear-gradient(180deg, #feb2b2, #fc8181);
+  color: #742a2a !important;
+  font-size: 18px !important;
+  box-shadow: 0 3px 0 #e53e3e, 0 3px 5px rgba(0,0,0,0.4);
+}
+
+.minus{
+  border: 1px solid #c05621;
+  background: linear-gradient(180deg, #feebc8, #fbd38d);
+  color: #9c4221 !important;
+  font-size: 20px !important;
+  box-shadow: 0 3px 0 #dd6b20, 0 3px 5px rgba(0,0,0,0.4);
+}
+
+.search{
+  border: 1px solid #2b6cb0;
+  background: linear-gradient(180deg, #bee3f8, #90cdf4);
+  color: #2b6cb0 !important;
+  font-size: 18px !important;
+  box-shadow: 0 3px 0 #3182ce, 0 3px 5px rgba(0,0,0,0.4);
+}
+
+.clear-all-btn{
+  border: 1px solid #d69e2e;
+  background: linear-gradient(180deg, #ecc94b, #d69e2e);
+  color: #744210 !important;
+  font-size: 12px !important;
+  box-shadow: 0 3px 0 #b7791f, 0 3px 5px rgba(0,0,0,0.4);
+}
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+.modal-overlay.active {
+  display: flex;
+}
+.modal-card {
+  background: #2d3748;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  color: #fff;
+  border: 2px solid #4a5568;
+  max-width: 330px;
+  width: 90%;
+}
+#qrcode {
+  background: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  display: inline-block;
+  margin: 14px 0;
+}
+
+.hint{
+  margin-top: 8px;
+  text-align: center;
+  color: #a0aec0;
+  font-size: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="panel">
+  <!-- គ្រាប់វីសជ្រុង -->
+  <div class="screw tl"></div>
+  <div class="screw tr"></div>
+  <div class="screw bl"></div>
+  <div class="screw br"></div>
+
+  <!-- ក្បាល Panel + ភ្លើង LED -->
+  <div class="panel-header">
+    <div class="brand-title">FIRE ALARM CONTROL PANEL</div>
+    <div class="led-indicators">
+      <div class="led-item"><div class="led green-on"></div> ធម្មតា</div>
+      <div class="led-item"><div class="led" id="led-alarm"></div> អាសន្ន</div>
+      <div class="led-item"><div class="led" id="led-fault"></div> ឧបសគ្គ</div>
+    </div>
+  </div>
+
+  <!-- របារ Action (Refresh & QR Code & Wallpaper) -->
+  <div class="system-actions">
+    <button class="action-btn" onclick="forceRefreshSystem()" title="ធ្វើបច្ចុប្បន្នភាពមុខងារថ្មីៗ">
+      🔄 ធ្វើបច្ចុប្បន្នភាព
+    </button>
+    <button class="action-btn qr-btn" onclick="showQRCodeModal()" title="មើល QR Code ប្រព័ន្ធ">
+      📱 QR Code
+    </button>
+    <button class="action-btn wp-btn" onclick="triggerWallpaperUpload()" title="ប្តូររូបភាព Wallpaper អេក្រង់">
+      🖼️ Wallpaper
+    </button>
+  </div>
+
+  <input type="file" id="wallpaperInput" accept="image/*" style="display: none;" onchange="handleWallpaperChange(event)">
+
+  <!-- ប៊ូតុងផ្នែកខាងលើអេក្រង់ -->
+  <button class="screen-header-btn" onclick="setHeaderMode()">
+    សូមបញ្ចូលលេខកូដ Smoke Detector នៅទីនេះ
+  </button>
+
+  <!-- អេក្រង់ LCD ពណ៌បៃតង ជាមួយ Wallpaper -->
+  <div id="screen" class="screen has-wallpaper"></div>
+
+  <!-- ប៊ូតុងបញ្ជា -->
+  <div class="controls">
+
+    <div class="col">
+      <button class="control-btn func btn-fire" onclick="press('S')">
+        <span class="code">S</span>
+        <span>Smoke</span>
+      </button>
+
+      <button class="control-btn func btn-fire" onclick="press('H')">
+        <span class="code">H</span>
+        <span>Heat</span>
+      </button>
+
+      <button class="control-btn func btn-warning" onclick="press('M')">
+        <span class="code">M</span>
+        <span>Break glass</span>
+      </button>
+
+      <button class="control-btn func btn-warning" onclick="press('Y')">
+        <span class="code">Y</span>
+        <span>Break glass</span>
+      </button>
+    </div>
+
+    <div class="col">
+      <button class="control-btn func btn-floor" onclick="pressFloor('GF')">
+        <span class="code">GF</span>
+        <span>ជាន់ផ្ទាល់ដី</span>
+      </button>
+
+      <button class="control-btn func btn-floor" onclick="pressFloor('1F')">
+        <span class="code">1F</span>
+        <span>ជាន់ទី1</span>
+      </button>
+
+      <button class="control-btn func btn-floor" onclick="pressFloor('2F')">
+        <span class="code">2F</span>
+        <span>ជាន់ទី2</span>
+      </button>
+
+      <button class="control-btn func btn-floor" onclick="pressFloor('3F')">
+        <span class="code">3F</span>
+        <span>ជាន់ទី3</span>
+      </button>
+    </div>
+
+    <!-- ក្តារចុច Keypad -->
+    <div class="keypad">
+      <button class="btn-num" onclick="key('1')">1</button>
+      <button class="btn-num" onclick="key('2')">2</button>
+      <button class="btn-num" onclick="key('3')">3</button>
+      <button class="delete-btn" onclick="deleteChar()" title="លុបតួអក្សរ">✕</button>
+
+      <button class="btn-num" onclick="key('4')">4</button>
+      <button class="btn-num" onclick="key('5')">5</button>
+      <button class="btn-num" onclick="key('6')">6</button>
+      <button class="minus" onclick="minus()">−</button>
+
+      <button class="btn-num" onclick="key('7')">7</button>
+      <button class="btn-num" onclick="key('8')">8</button>
+      <button class="btn-num" onclick="key('9')">9</button>
+      <button class="search" onclick="searchLocation()" title="ស្វែងរកទីតាំង">⌕</button>
+
+      <button class="btn-num" onclick="key('0')">0</button>
+      <button class="clear-all-btn" onclick="clearScreen()" style="grid-column: span 3;">កំណត់ឡើងវិញ (RESET)</button>
+    </div>
+
+  </div>
+
+  <div class="hint">
+    ចុច ✕ ដើម្បីលុបម្តងមួយតួ • ចុច ⌕ ដើម្បីស្វែងរកទីតាំង
+  </div>
+
+</div>
+
+<!-- Pop-up ផ្ទាំងបង្ហាញ QR Code -->
+<div id="qrModal" class="modal-overlay">
+  <div class="modal-card">
+    <h3 style="margin:0 0 8px 0; font-size:16px;">QR Code សម្រាប់ប្រើប្រាស់</h3>
+    <p style="margin:0; font-size:12px; color:#cbd5e0;">ស្កែនដើម្បីបើកប្រព័ន្ធ ឬរក្សាទុក QR នេះប្រើប្រាស់បានរហូត</p>
+    <div id="qrcode"></div>
+    <br>
+    <button class="action-btn" onclick="closeQRCodeModal()" style="margin: 0 auto; width: 120px;">បិទវិញ</button>
+  </div>
+</div>
+
+<script>
+const detectorDatabase = [
+  // GF Group - ភាគ១
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "H-GF-01", numCode: "01", eng: "ELE ROOM", kh: "បន្ទប់ជាងអគ្គិសនី", type: "ចាប់កំដៅ (Heat)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-02", numCode: "02", eng: "SECURITY OFFICE", kh: "បន្ទប់សន្តិសុខ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-03", numCode: "03", eng: "MAINTENANCE ELEC", kh: "បន្ទប់ជាងទឹក", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "H-GF-04", numCode: "04", eng: "Generator 2", kh: "ម៉ាស៊ីនភ្លើងតូច", type: "ចាប់កំដៅ (Heat)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "H-GF-05", numCode: "05", eng: "Generator", kh: "ម៉ាស៊ីនភ្លើងធំ", type: "ចាប់កំដៅ (Heat)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-06", numCode: "06", eng: "GEN1DB", kh: "ទូរភ្លើងក្នុងរោងម៉ាស៊ីន", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "H-GF-07", numCode: "07", eng: "INCINERATION", kh: "បន្ទប់ឡរដុតសំរាម", type: "ចាប់កំដៅ (Heat)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-08", numCode: "08", eng: "Mortuary Room", kh: "បន្ទប់តម្កល់សព/បន្ទប់ឡរដុតសំរាម", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "H-GF-10", numCode: "10", eng: "LAUNDRY", kh: "ការិយាល័យបោកគក់", type: "ចាប់កំដៅ (Heat)" },
+  { 
+    flow: "ជាន់ផ្ទាល់ដី(GF)", 
+    code: "011", 
+    numCode: "011", 
+    eng: "BUILDING SAFETY SYSTEM", 
+    kh: "ប្រព័ន្ធសុវត្ថិភាពអគារ", 
+    type: "ប្រព័ន្ធសុវត្ថិភាពអគារ",
+    details: `ដើម្បីបង្ការ និងកាត់បន្ថយហានិភ័យអគ្គីភ័យ មន្ទីរពេទ្យកុមារអង្គរ បានយកចិត្តទុកដាក់ខ្ពស់ក្នុងការរៀបចំ និងដំឡើងប្រព័ន្ធការពារអគ្គីភ័យជាច្រើនប្រភេទ ដោយផ្អែកលើស្តង់ដាសុវត្ថិភាព។ ប្រព័ន្ធទាំងនេះរួមមាន ប្រព័ន្ធចាប់ផ្សែង និងជូនដំណឹងអគ្គីភ័យ, បំពង់ពន្លត់អគ្គីភ័យ, ទុយោទឹកពន្លត់អគ្គីភ័យ, ដីខ្សាច់សម្រាប់ពន្លត់ភ្លើងដែលមានលក្ខណៈតូចៗ និងសម្ភារៈចាំបាច់សម្រាប់ប្រើប្រាស់ពេលមានអគ្គីភ័យ និងការជម្លៀសជនរងគ្រោះ ដើម្បីធានាថាបុគ្គលិក អ្នកជំងឺ និងអ្នកមកប្រើសេវា អាចចាកចេញពីតំបន់គ្រោះថ្នាក់បានដោយសុវត្ថិភាព។<br><br>ជាមួយគ្នានេះដែរ មន្ទីរពេទ្យកុមារអង្គរ បានរៀបចំប្លង់ជម្លៀសយ៉ាងច្បាស់លាស់ និងកំណត់ទីតាំងជួបជុំពេលមានអាសន្ន ដើម្បីជួយសម្រួលដល់ការគ្រប់គ្រង និងការសង្គ្រោះបន្ទាន់ឲ្យមានប្រសិទ្ធភាព។ វិធានការទាំងអស់នេះ បង្ហាញពីការប្តេជ្ញាចិត្តរបស់មន្ទីរពេទ្យ ក្នុងការការពារសុវត្ថិភាព និងសុខុមាលភាពរបស់កុមារ និងមនុស្សគ្រប់រូបនៅក្នុងមន្ទីរពេទ្យ។<br><br><strong style="color:#00ffff; font-size:15px; border-bottom:1px dashed #00ffff; display:inline-block; margin-bottom:4px;">១. ប្រព័ន្ធចាប់ផ្សែង</strong><br>នៅក្នុងមន្ទីរពេទ្យមានប្រព័ន្ធចាប់ផ្សែងចំនួន ២ប្រព័ន្ធគឺ Conventional Panel និង Addressable Panel ពួកវាធ្វើការគ្រប់គ្រងទៅ Smoke Detector ចំនួន ១៤៧គ្រាប់ Conventional Panel ២៤គ្រាប់ Addressable Panel ១២៣គ្រាប់ Break Glass ចំនួន ១៣គ្រាប់ Conventional Panel ០៦គ្រាប់ Addressable Panel ០៧គ្រាប់ កណ្តឹងចំនួន ០៨គ្រាប់ Conventional Panel ០៣គ្រាប់ Addressable Panel ០៥គ្រាប់<br><br><strong style="color:#00ffff; font-size:15px; border-bottom:1px dashed #00ffff; display:inline-block; margin-bottom:6px;">១.១ ទីតាំង Smoke Detector គ្រប់គ្រងដោយ Conventional Panel មាន ០៤ Zone គឺ៖</strong><br><br><strong style="color:#ffcc00;">• Zone 4 មាន ០៨បន្ទប់៖</strong><div style="padding-left:14px; margin-top:3px; line-height:1.7;">១. បន្ទប់ផ្លាស់ប្តូរសម្លៀកបំពាក់ប្រុសនិងស្រី<br>២. បន្ទប់ព្យាបាលដោយចលនា<br>៣. បន្ទប់កាត់កញ្ចក់វែនតា<br>៤. <span style="color:#ff4d4d; font-weight:bold;">បន្ទប់ព្យាបាលជម្ងឺភ្នែក លេខ៥</span><br>៥. បន្ទប់វាស់គំហើញ លេខ២<br>៦. បន្ទប់វះកាត់ជម្ងឺភ្នែក លេខ៣<br>៧. <span style="color:#ff4d4d; font-weight:bold;">បន្ទប់ប៉ាន់ប្រមាណការគាំទ្រផ្នែកសង្គមកិច្ច</span><br>៨. <span style="color:#ff4d4d; font-weight:bold;">បន្ទប់លាយថ្នាំគីមី</span></div><br><strong style="color:#ffcc00;">• Zone ៦ មាន ០២បន្ទប់៖</strong><div style="padding-left:14px; margin-top:3px; line-height:1.7;">១. <span style="color:#ff4d4d; font-weight:bold;">មន្ទីរពិសោធន៍មីក្រុបវិទ្យា (MICROBIOLOGY LABORATORY)</span><br>២. <span style="color:#ff4d4d; font-weight:bold;">មន្ទីរពិសោធន៍ កន្លែងបូមឈាម (LABORATORY)</span></div><br><strong style="color:#ffcc00;">• Zone ៧ មាន ០១បន្ទប់៖</strong><div style="padding-left:14px; margin-top:3px; line-height:1.7;">១. <span style="color:#ff4d4d; font-weight:bold;">មន្ទីរពិសោធន៍ម៉ូលេគុល (MOLECULAR LAR ROOM)</span></div><br><strong style="color:#00ffff; font-size:15px; border-bottom:1px dashed #00ffff; display:inline-block; margin-bottom:6px;">១.២ ទីតាំង Smoke គ្រប់គ្រងដោយ Addressable Panel មាន ៧២ Smoke Detector</strong><br><br><strong style="color:#ffcc00;">• ជាន់ផ្ទាល់ដី មាន ៧២ Smoke Detector ហើយបន្ទប់ដែលងាយឆាបឆេះមាន៖</strong><div style="padding-left:14px; margin-top:3px; line-height:1.7;">- <span style="color:#ff4d4d; font-weight:bold;">បន្ទប់ឃ្លាំងកណ្តាល</span><br>- <span style="color:#ff4d4d; font-weight:bold;">បន្ទប់ឃ្លាំងថ្នាំចាក់</span><br>- <span style="color:#ff4d4d; font-weight:bold;">បន្ទប់ឃ្លាំងថ្នាំគ្រាប់</span><br>- <span style="color:#ff4d4d; font-weight:bold;">បន្ទប់ឱសថស្ថាន</span><br>- <span style="color:#ff4d4d; font-weight:bold;">បន្ទប់ចុះឈ្មោះអ្នកជំងឺ</span><br>- <span style="color:#ff4d4d; font-weight:bold;">បន្ទប់បើកម្ហូបអ្នកជំងឺ</span><br>- <span style="color:#ff4d4d; font-weight:bold;">បន្ទប់បោកគក់</span><br>- <span style="color:#ff4d4d; font-weight:bold;">ឡរដុតសម្រាម</span><br>- <span style="color:#ff4d4d; font-weight:bold;">រោងម៉ាស៊ីនភ្លើង</span></div><br><strong style="color:#ffcc00;">• ជាន់ទី១ មាន ២៦ Smoke Detector ហើយបន្ទប់ដែលងាយឆាបឆេះមាន៖</strong><div style="padding-left:14px; margin-top:3px; line-height:1.7;">- <span style="color:#ff4d4d; font-weight:bold;">បន្ទប់ដាក់ឯកសារផ្នែកគណនេយ្យ</span><br>- <span style="color:#ff4d4d; font-weight:bold;">បន្ទប់ដាក់ឯកសារផ្នែកគំរូ</span><br>- <span style="color:#ff4d4d; font-weight:bold;">បន្ទប់ទូរ Sever class room D</span><br>- <span style="color:#ff4d4d; font-weight:bold;">បន្ទប់ឃ្លាំងកណ្តាលជាន់លើ</span><br>- <span style="color:#ff4d4d; font-weight:bold;">បន្ទប់ដាក់ឯកសារអ្នកជំងឺជាន់លើ</span></div><br><strong style="color:#ffcc00;">• ជាន់ទី២ មាន ១១ Smoke Detector ហើយបន្ទប់ដែលងាយឆាបឆេះមាន៖</strong><div style="padding-left:14px; margin-top:3px; line-height:1.7;">- <span style="color:#ff4d4d; font-weight:bold;">ការិយាល័យ CB</span></div><br><strong style="color:#ffcc00;">• ជាន់ទី៣ មាន ០៦ Smoke Detector ហើយបន្ទប់ដែលងាយឆាបឆេះមាន៖</strong><div style="padding-left:14px; margin-top:3px; line-height:1.7;">- <span style="color:#ff4d4d; font-weight:bold;">ការិយាល័យព័ត៌មានវិទ្យា</span><br>- <span style="color:#ff4d4d; font-weight:bold;">បន្ទប់គណនេយ្យ</span></div><br><strong style="color:#00ffff; font-size:15px; border-bottom:1px dashed #00ffff; display:inline-block; margin-top:10px; margin-bottom:8px;">១.៣ របៀបប្រើប្រាស់ប្រព័ន្ធចាប់ផ្សែង Conventional Panel និង Addressable Panel</strong><br><br><strong style="color:#ffcc00;">• របៀបចុចបិទសម្លេងកណ្តឹងរោទិ៍ Conventional Panel៖</strong><div style="border: 1px solid #00ffff; padding: 8px 10px; border-radius: 6px; background: rgba(0, 255, 255, 0.08); margin: 6px 0 10px 0; font-size: 13px; color: #ffffff; line-height: 1.5;">ចុចប៊ូតុង Silent ➔ ដាក់បញ្ចូលលេខកូដ 1.2.3.4 ➔ ចុចប៊ូតុង Silent ម្តងទៀត</div><strong style="color:#ffcc00;">• របៀបចុចបិទសម្លេងកណ្តឹងរោទិ៍ Addressable Panel៖</strong><div style="border: 1px solid #00ffff; padding: 8px 10px; border-radius: 6px; background: rgba(0, 255, 255, 0.08); margin: 6px 0 4px 0; font-size: 13px; color: #ffffff; line-height: 1.5;">ចុចប៊ូតុង NAC Activate ➔ ដាក់បញ្ចូលលេខកូដ 1.2.3.4 ➔ ចុចប៊ូតុង OK ➔ ចុចប៊ូតុង NAC Activate ម្ដងទៀត</div><div style="font-size: 12px; color: #a0aec0; margin-bottom: 12px; padding-left: 4px;">*(យើងចុចបិទសម្លេងកណ្តឹងនេះនៅពេលដែលវាបន្លឺសម្លេងរោទិ៍ ដើម្បីកុំឱ្យមានសម្លេងរំខានឬបង្ករការភ័យខ្លាច)*</div><strong style="color:#ffcc00;">• របៀបចុចបិទប្រព័ន្ធចាប់ផ្សែង (Disable Smoke Detector) Conventional Panel មិនឱ្យដំណើរការ៖</strong><div style="border: 1px solid #ff9900; padding: 8px 10px; border-radius: 6px; background: rgba(255, 153, 0, 0.08); margin: 6px 0 10px 0; font-size: 13px; color: #ffffff; line-height: 1.5;">ចុចប៊ូតុងរូបមនុស្ស ➔ ជ្រើសរើសយកពាក្យ Disable③ ➔ ដាក់បញ្ចូលលេខកូដ①②③④ ➔ ជ្រើសរើសយកពាក្យ Zone① ឬ All ➔ ជ្រើសរើសយកទីតាំង Smoke ➔ ចុចសញ្ញា ☑</div><strong style="color:#ffcc00;">• របៀបចុចបើកប្រព័ន្ធចាប់ផ្សែង (Enable Smoke) Conventional Panel ឱ្យដំណើរការធម្មតាវិញ៖</strong><div style="border: 1px solid #00ff66; padding: 8px 10px; border-radius: 6px; background: rgba(0, 255, 102, 0.08); margin: 6px 0 10px 0; font-size: 13px; color: #ffffff; line-height: 1.5;">ចុចប៊ូតុងរូបមនុស្ស ➔ ជ្រើសរើសយកពាក្យ Enable③ ➔ ដាក់បញ្ចូលលេខកូដ①②③④ ➔ ជ្រើសរើសយកពាក្យ Zone① ឬ All ➔ ជ្រើសរើសយកទីតាំង Smoke ➔ ចុចសញ្ញា ☑ ➔ ចុចប៊ូតុង Reset 2 ដង</div><strong style="color:#ffcc00;">• របៀបចុចបិទប្រព័ន្ធចាប់ផ្សែង (Disable Smoke) Addressable Panel មិនឱ្យដំណើរការ៖</strong><div style="border: 1px solid #ff9900; padding: 8px 10px; border-radius: 6px; background: rgba(255, 153, 0, 0.08); margin: 6px 0 10px 0; font-size: 13px; color: #ffffff; line-height: 1.5;">ចុចប៊ូតុង Menu ➔ ជ្រើសរើសយកពាក្យ Login ➔ ដាក់បញ្ចូលលេខកូដ①②③④ ➔ ⓄⓀ ➔ ចុចប៊ូតុង Browser ➔ ជ្រើសរើសយកពាក្យ All ➔ ជ្រើសរើសយកពាក្យ ANGKOR HOSPITAL CHILDREN(122) ➔ ជ្រើសយកពាក្យ Detection Group ➔ ជ្រើសយកពាក្យ Detection GF,1F,2F,3F ➔ ជ្រើសរើសយកទីតាំង Smoke ➔ ចុចលើព្រួញខាងស្តាំ ➔ ជ្រើសរើសយកពាក្យ Disable ➔ ⓄⓀ</div><strong style="color:#ffcc00;">• របៀបចុចបើកប្រព័ន្ធចាប់ផ្សែង (Enable Smoke) Addressable Panel ឱ្យដំណើរការធម្មតាវិញ៖</strong><div style="border: 1px solid #00ff66; padding: 8px 10px; border-radius: 6px; background: rgba(0, 255, 102, 0.08); margin: 6px 0 10px 0; font-size: 13px; color: #ffffff; line-height: 1.5;">ចុចប៊ូតុង Menu ➔ ជ្រើសរើសយកពាក្យ Login ➔ ដាក់បញ្ចូលលេខកូដ①②③④ ➔ ⓄⓀ ➔ ចុចប៊ូតុង Browser ➔ ជ្រើសរើសយកពាក្យ All ➔ ជ្រើសរើសយកពាក្យ ANGKOR HOSPITAL CHILDREN (122) ➔ ជ្រើសយកពាក្យ Detection Group ➔ ជ្រើសយក Detection GF,1F,2F,3F ➔ ជ្រើសរើសយកទីតាំង Smoke ➔ ចុចលើព្រួញខាងស្តាំ ➔ ជ្រើសរើសយកពាក្យ Enable ➔ ⓄⓀ ➔ ចុចប៊ូតុង Reset</div>`
+  },
+  { 
+    flow: "ជាន់ផ្ទាល់ដី(GF)", 
+    code: "012", 
+    numCode: "012", 
+    eng: "MANUAL CALL POINT / BREAK GLASS", 
+    kh: "ប្រអប់ចុចប្រកាសអាសន្ន", 
+    type: "ប្រអប់ចុចប្រកាសអាសន្ន",
+    details: `<strong style="color:#00ffff; font-size:15px; border-bottom:1px dashed #00ffff; display:inline-block; margin-bottom:8px;">១.៤ ប្រអប់ចុចប្រកាសអាសន្ន</strong><br><br><strong style="color:#ffcc00;">• ទីតាំងប្រអប់ចុចប្រកាសអាសន្ន Conventional Panel មាន ០៦៖</strong><div style="padding-left:14px; margin-top:3px; line-height:1.7;">១. មុខបន្ទប់មន្ទីរពិសោធន៍ម៉ូលេគុល<br>២. ច្រកសង្គ្រោះបន្ទាន់<br>៣. បន្ទប់ចលនា<br>៤. បន្ទប់សង្គមកិច្ច<br>៥. បន្ទប់បូមឈាម<br>៦. បន្ទប់IT</div><br><strong style="color:#ffcc00;">• ទីតាំងប្រអប់ចុចប្រកាសអាសន្ន Addressable Panel មាន ០៧៖</strong><div style="padding-left:14px; margin-top:3px; line-height:1.7;">១. បន្ទប់មន្ទីរពិសោធន៍ ម៉ូលេគុល<br>២. ទល់មុខការិយាល័យ អប់រំ<br>៣. ទល់មុខការិយាល័យ ធនធានមនុស្ស<br>៤. ទល់មុខបន្ទប់ គណៈគ្រប់គ្រងមន្ទីរពេទ្យ<br>៥. ទល់មុខបន្ទប់គំរូ<br>៦. OPD<br>៧. អាគារព័ត៌មាន</div><br><div style="border: 1px solid #00ffff; padding: 8px 10px; border-radius: 6px; background: rgba(0, 255, 255, 0.08); margin: 6px 0 4px 0; font-size: 13px; color: #ffffff; line-height: 1.5;">🔔 <strong>ការប្រើប្រាស់៖</strong> គេប្រើប្រាស់ប្រអប់ចុចប្រកាសអាសន្ន នៅពេលដែលមានអគ្គីភ័យកើតឡើងហើយកណ្តឹងមិនបន្លឺសម្លេងរោទិ៍។</div>`
+  },
+  { 
+    flow: "ជាន់ផ្ទាល់ដី(GF)", 
+    code: "013", 
+    numCode: "013", 
+    eng: "FIRE EXTINGUISHER", 
+    kh: "បំពង់ពន្លត់អគ្គីភ័យ (Extinguisher)", 
+    type: "បំពង់ពន្លត់អគ្គីភ័យ",
+    details: `<strong style="color:#00ff66; font-size:16px; border-bottom:1px dashed #00ff66; display:inline-block; margin-bottom:8px;">២. បំពង់ពន្លត់អគ្គីភ័យ (Extinguisher)</strong><br><br>មន្ទីរពេទ្យកុមារអង្គរ បានរៀបចំបំពង់ពន្លត់អគ្គីភ័យសរុបចំនួន ៥២ ដប (ប្រភេទ ABC , BC) ដើម្បីប្រើប្រាស់ក្នុងការបង្ការ និងអន្តរាគមន៍ពេលមានអគ្គីភ័យកើតឡើង។ បំពង់ពន្លត់អគ្គីភ័យទាំងនេះត្រូវបានបែងចែកជា ៣ ប្រភេទ គឺ ប្រភេទ A, B និង C ដែលមានតួនាទីខុសៗគ្នា ស្របតាមប្រភេទអគ្គីភ័យនីមួយៗ។<br><br>ការរៀបចំ និងដាក់តាំងបំពង់ពន្លត់អគ្គីភ័យបានធ្វើឡើងតាមទីតាំងសំខាន់ៗក្នុងមន្ទីរពេទ្យ ដើម្បីធានាបាននូវសុវត្ថិភាពអ្នកជំងឺ គ្រួសារអ្នកជំងឺ បុគ្គលិក ភ្ញៀវ និងទ្រព្យសម្បត្តិរបស់អង្គភាព ហើយអាចអន្តរាគមន៍បានទាន់ពេលវេលា នៅពេលមានហានិភ័យអគ្គីភ័យកើតឡើង។<br><br><strong style="color:#00ffff; font-size:15px; border-bottom:1px dashed #00ffff; display:inline-block; margin-bottom:6px;">២.១ ប្រភេទនៃបំពង់ពន្លត់អគ្គីភ័យ</strong><br><br><strong style="color:#ffcc00;">• ប្រភេទ A៖</strong> ប្រើសម្រាប់ពន្លត់អគ្គីភ័យដែលកើតពីវត្ថុរឹង ងាយឆេះ ដូចជា ឈើ ក្រដាស ក្រណាត់ និងសម្ភារៈប្រើប្រាស់ទូទៅក្នុងមន្ទីរពេទ្យ។<br><strong style="color:#ffcc00;">• ប្រភេទ B៖</strong> ប្រើសម្រាប់ពន្លត់អគ្គីភ័យដែលកើតពីសារធាតុរាវ ឬជាតិប្រេង ងាយឆេះ ដូចជា ប្រេងឥន្ធនៈ ប្រេងម៉ាស៊ីន និងសារធាតុគីមីខ្លះៗ។<br><strong style="color:#ffcc00;">• ប្រភេទ C៖</strong> ប្រើសម្រាប់ពន្លត់អគ្គីភ័យដែលកើតពីប្រព័ន្ធអគ្គិសនី ឬឧបករណ៍អគ្គិសនី ដោយមានសុវត្ថិភាព មិនបង្កឲ្យឆក់អគ្គិសនី។<br><br><strong style="color:#00ffff; font-size:15px; border-bottom:1px dashed #00ffff; display:inline-block; margin-top:6px; margin-bottom:8px;">២.២ របៀបប្រើប្រាស់បំពង់ពន្លត់អគ្គីភ័យ (តាមជំហាន)</strong><br><br><strong style="color:#ffcc00;">• ជំហានទី១៖</strong><div style="border: 1px solid #00ffff; padding: 8px 10px; border-radius: 6px; background: rgba(0, 255, 255, 0.08); margin: 4px 0 8px 0; font-size: 13px; color: #ffffff; line-height: 1.6;">- ក្រឡុកបំពង់ពន្លត់អគ្គីភ័យ<br>- ដកម្ជុលសុវត្ថិភាព (Safety Pin) ចេញពីបំពង់<br>- កាន់បំពង់ឲ្យរឹងមាំ មិនបែរមុខបំពង់ទៅកាន់មនុស្ស</div><strong style="color:#ffcc00;">• ជំហានទី២៖</strong><div style="border: 1px solid #00ffff; padding: 8px 10px; border-radius: 6px; background: rgba(0, 255, 255, 0.08); margin: 4px 0 8px 0; font-size: 13px; color: #ffffff; line-height: 1.6;">- ចង្អុលមាត់បំពង់ទៅ <strong>បាតភ្លើង</strong> (មិនមែនទៅកំពូលអណ្តាតភ្លើង)<br>- រក្សាចម្ងាយប្រហែល ១.៥ម៉ែត្រ - ២ម៉ែត្រ</div><strong style="color:#ffcc00;">• ជំហានទី៣៖</strong><div style="border: 1px solid #00ffff; padding: 8px 10px; border-radius: 6px; background: rgba(0, 255, 255, 0.08); margin: 4px 0 8px 0; font-size: 13px; color: #ffffff; line-height: 1.6;">- ចុចដងបញ្ជា (Handle) ដើម្បីបាញ់សារធាតុពន្លត់អគ្គីភ័យ</div><strong style="color:#ffcc00;">• ជំហានទី៤៖</strong><div style="border: 1px solid #00ffff; padding: 8px 10px; border-radius: 6px; background: rgba(0, 255, 255, 0.08); margin: 4px 0 8px 0; font-size: 13px; color: #ffffff; line-height: 1.6;">- បាញ់ទៅមុខ–ទៅក្រោយ (ឆ្វេង–ស្តាំ) ឲ្យគ្របដណ្តប់លើបាតភ្លើង បន្តបាញ់រហូតដល់ភ្លើងរលត់ទាំងស្រុង</div><div style="border: 1px solid #ff4d4d; padding: 10px; border-radius: 6px; background: rgba(255, 77, 77, 0.12); margin-top: 12px; font-size: 13px; color: #ffffff; line-height: 1.6;"><strong style="color:#ff4d4d; font-size:14px;">📌 ចំណាំសុវត្ថិភាព</strong><br>🚨 រាយការណ៍ជូនអ្នកទទួលខុសត្រូវ និងផ្នែកសន្តិសុខភ្លាមៗ<br>🔥 ប្រសិនបើភ្លើងឆេះខ្លាំង ឬមានផ្សែងច្រើន ត្រូវចាកចេញភ្លាម និងជូនដំណឹងក្រុមពន្លត់អគ្គីភ័យ<br>⚠️ មិនត្រូវប្រើបំពង់ដែលផុតកំណត់ ឬខូចខាត</div>`
+  },
+  { 
+    flow: "ជាន់ផ្ទាល់ដី(GF)", 
+    code: "014", 
+    numCode: "014", 
+    eng: "FIRE HOSE REEL", 
+    kh: "ទុយោទឹកពន្លត់អគ្គីភ័យ (Extinguisher)", 
+    type: "ទុយោទឹកពន្លត់អគ្គីភ័យ",
+    details: `<strong style="color:#00ff66; font-size:16px; border-bottom:1px dashed #00ff66; display:inline-block; margin-bottom:8px;">៣. ទុយោទឹកពន្លត់អគ្គីភ័យ (Extinguisher)</strong><br><br>មន្ទីរពេទ្យកុមារអង្គរ បានរៀបចំដំឡើង ទុយោទឹកពន្លត់អគ្គីភ័យ ចំនួន ១១ ទីតាំង នៅតាមអគារ និងតំបន់សំខាន់ៗ ដើម្បីប្រើប្រាស់សម្រាប់ការពន្លត់អគ្គីភ័យ និងអន្តរាគមន៍បានទាន់ពេលវេលា នៅពេលមានហានិភ័យកើតឡើង។ ការត្រួតពិនិត្យ និងថែទាំទុយោទឹក ត្រូវបានអនុវត្តជាប្រចាំរៀងរាល់ ០១ខែម្តង ដើម្បីធានាថាស្ថិតក្នុងស្ថានភាពល្អ អាចប្រើប្រាស់បានមានប្រសិទ្ធភាព និងជួយបង្កើនសុវត្ថិភាពដល់អ្នកជំងឺ កុមារ បុគ្គលិក និងទ្រព្យសម្បត្តិនៅក្នុងមន្ទីរពេទ្យ។<br><br><strong style="color:#00ffff; font-size:15px; border-bottom:1px dashed #00ffff; display:inline-block; margin-bottom:6px;">៣.១ ទីតាំងទុយោពន្លត់អគ្គីភ័យ</strong><br><br><div style="padding-left:14px; margin-top:3px; line-height:1.7; color:#ffffff;"><strong style="color:#ffcc00;">១.</strong> ទល់មុខរោងម៉ាស៊ីនភ្លើង (២០ម៉ែត្រ)<br><strong style="color:#ffcc00;">២.</strong> កន្លែងបោកគក់ (២០ម៉ែត្រ)<br><strong style="color:#ffcc00;">៣.</strong> ការិយាល័យអប់រំ (៤០ម៉ែត្រ)<br><strong style="color:#ffcc00;">៤.</strong> រោងបាយ (៦០ម៉ែត្រ)<br><strong style="color:#ffcc00;">៥.</strong> ផ្លូវចូល Neonate (៣០ម៉ែត្រ)<br><strong style="color:#ffcc00;">៦.</strong> ខាងកើតកញ្ចុះ Home Care (៣០ ម៉ែត្រ)<br><strong style="color:#ffcc00;">៧.</strong> ជាន់ទី១ ទល់មុខបន្ទប់កន្លែងឆុងកាហ្វេ_រដ្ឋបាល (៣០ ម៉ែត្រ)<br><strong style="color:#ffcc00;">៨.</strong> ជាន់ទី១ ទល់មុខមន្ទីរពិសោធន៍ (កន្លែងបូមឈាម) (៣០ ម៉ែត្រ)<br><strong style="color:#ffcc00;">៩.</strong> ជាន់ទី២ ទល់មុខបន្ទប់ CB (៣០ ម៉ែត្រ)<br><strong style="color:#ffcc00;">១០.</strong> ជាន់ទី២ ទល់មុខបន្ទប់ រៃអង្គាសមូលនិធិក្នុងប្រទេសកម្ពុជា (៣០ ម៉ែត្រ)<br><strong style="color:#ffcc00;">១១.</strong> ជាន់ទី៣ ទល់មុខបន្ទប់ គំរូ (៣០ ម៉ែត្រ)</div>`
+  },
+  { 
+    flow: "ជាន់ផ្ទាល់ដី(GF)", 
+    code: "015", 
+    numCode: "015", 
+    eng: "FIRE SAND BUCKET", 
+    kh: "ដីខ្សាច់ពន្លត់ភ្លើង", 
+    type: "ដីខ្សាច់ពន្លត់ភ្លើង",
+    details: `<strong style="color:#00ff66; font-size:16px; border-bottom:1px dashed #00ff66; display:inline-block; margin-bottom:8px;">៤. ដីខ្សាច់ពន្លត់ភ្លើង</strong><br><br>ដីខ្សាច់ពន្លត់ភ្លើង ប្រើសម្រាប់ពន្លត់ ភ្លើងដែលឆេះមានលក្ខណៈតូចៗ ដែលបណ្ដាលមកពី ប្រេង ខ្លាញ់ ឬវត្ថុរាវដែលងាយបង្កជាចំហេះ។ សូមរក្សាចំងាយសុវត្ថិភាព​ នៅពេលប្រើប្រាស់ដីខ្សាច់ពន្លត់ភ្លើង​។<br><br><strong style="color:#00ffff; font-size:15px; border-bottom:1px dashed #00ffff; display:inline-block; margin-bottom:6px;">៤.១ ទីតាំងដីខ្សាច់ពន្លត់ភ្លើង (មាន ២ ទីតាំង)</strong><br><br><div style="padding-left:14px; margin-top:3px; line-height:1.7; color:#ffffff;"><strong style="color:#ffcc00;">១.</strong> ទល់មុខរោងម៉ាស៊ីនភ្លើង<br><strong style="color:#ffcc00;">២.</strong> រោងដាំបាយ</div>`
+  },
+  { 
+    flow: "ជាន់ផ្ទាល់ដី(GF)", 
+    code: "016", 
+    numCode: "016", 
+    eng: "EMERGENCY EVACUATION EQUIPMENT", 
+    kh: "សម្ភារៈត្រៀមជម្លៀសពេលមានអាសន្ន", 
+    type: "សម្ភារៈត្រៀមជម្លៀសពេលមានអាសន្ន",
+    details: `<strong style="color:#00ff66; font-size:16px; border-bottom:1px dashed #00ff66; display:inline-block; margin-bottom:8px;">៥. សម្ភារៈត្រៀមជម្លៀសពេលមានអាសន្ន</strong><br><br>មន្ទីរពេទ្យបានរៀបចំទូរដាក់សម្ភារៈប្រើប្រាស់ពេលមានអាសន្ននិងជម្លៀសជនរងគ្រោះ ចំនួន២ទីតាំង ដែលមានសម្ភារៈចំនួន ០៩ មុខគឺ៖<br><br><strong style="color:#00ffff; font-size:15px; border-bottom:1px dashed #00ffff; display:inline-block; margin-bottom:6px;">📦 ទូរទី ០១៖ នៅក្រោមជណ្តើរ អគាររដ្ឋបាល</strong><br><br><div style="border: 1px solid #00ffff; padding: 10px; border-radius: 6px; background: rgba(0, 255, 255, 0.08); margin-bottom: 12px; line-height: 1.7; color: #ffffff;"><strong style="color:#ffcc00;">១.</strong> ប្រដាប់សែងអ្នកជំងឺ <strong>(១)</strong><br><strong style="color:#ffcc00;">២.</strong> កម្រាលសម្រាប់ជម្លៀសជនរងគ្រោះ <strong>(២)</strong><br><strong style="color:#ffcc00;">៣.</strong> រទេះរុញ <strong>(១)</strong><br><strong style="color:#ffcc00;">៤.</strong> ប្រដាប់អបក <strong>(៥)</strong><br><strong style="color:#ffcc00;">៥.</strong> មួកការពារអគ្គីភ័យ <strong>(៥)</strong><br><strong style="color:#ffcc00;">៦.</strong> ពូថៅ <strong>(២)</strong><br><strong style="color:#ffcc00;">៧.</strong> ឈុតសម្លៀកបំពាក់អគ្គីភ័យ <strong>(៣ ឈុត)</strong><br><strong style="color:#ffcc00;">៨.</strong> ភួយពន្លត់អគ្គីភ័យ <strong>(៨)</strong><br><strong style="color:#ffcc00;">៩.</strong> ម៉ាស់ការពារផ្សែង <strong>(៣)</strong></div><br><strong style="color:#00ffff; font-size:15px; border-bottom:1px dashed #00ffff; display:inline-block; margin-bottom:6px;">📦 ទូរទី ០២៖ កន្លែងរង់ចាំ (OPD)</strong><br><br><div style="border: 1px solid #00ff66; padding: 10px; border-radius: 6px; background: rgba(0, 255, 102, 0.08); margin-bottom: 8px; line-height: 1.7; color: #ffffff;"><strong style="color:#ffcc00;">១.</strong> ប្រដាប់សែងអ្នកជំងឺ <strong>(១)</strong><br><strong style="color:#ffcc00;">២.</strong> កម្រាលសម្រាប់ជម្លៀសជនរងគ្រោះ <strong>(២)</strong><br><strong style="color:#ffcc00;">៣.</strong> រទេះរុញ <strong>(១)</strong><br><strong style="color:#ffcc00;">៤.</strong> ប្រដាប់អបក <strong>(៥)</strong><br><strong style="color:#ffcc00;">៥.</strong> មួកការពារអគ្គីភ័យ <strong>(៤)</strong><br><strong style="color:#ffcc00;">៦.</strong> ពូថៅ <strong>(២)</strong><br><strong style="color:#ffcc00;">៧.</strong> ឈុតសម្លៀកបំពាក់អគ្គីភ័យ <strong>(៣ ឈុត)</strong><br><strong style="color:#ffcc00;">៨.</strong> ភួយពន្លត់អគ្គីភ័យ <strong>(៧)</strong><br><strong style="color:#ffcc00;">៩.</strong> ម៉ាស់ការពារផ្សែង <strong>(៣)</strong></div>`
+  },
+  { 
+    flow: "ជាន់ផ្ទាល់ដី(GF)", 
+    code: "017", 
+    numCode: "017", 
+    eng: "EVACUATION MAP", 
+    kh: "ប្លង់ជម្លៀស", 
+    type: "ប្លង់ជម្លៀស",
+    details: `<strong style="color:#00ff66; font-size:16px; border-bottom:1px dashed #00ff66; display:inline-block; margin-bottom:8px;">៦. ប្លង់ជម្លៀស</strong><br><br>មន្ទីរពេទ្យចាំបាច់ត្រូវមានប្លង់ជម្លៀសពេលមានអាសន្ន ដើម្បីណែនាំផ្លូវចេញឲ្យបានច្បាស់ ជួយឲ្យអ្នកជំងឺ បុគ្គលិក និងភ្ញៀវ ជម្លៀសបានលឿន និងមានសុវត្ថិភាព កាត់បន្ថយភាពភ័យស្លន់ស្លោ និងការបាត់បង់ជីវិត ព្រមទាំងស្របតាមបទបញ្ជា និងស្តង់ដាសុវត្ថិភាព។<br><br><strong style="color:#00ffff; font-size:15px; border-bottom:1px dashed #00ffff; display:inline-block; margin-bottom:6px;">នៅក្នុងមន្ទីរពេទ្យមានប្លង់ជម្លៀសចំនួន ៦ ទីតាំងគឺ៖</strong><br><br><div style="padding-left:14px; margin-top:3px; line-height:1.7; color:#ffffff;"><strong style="color:#ffcc00;">១.</strong> ជាប់ជញ្ជាំងបន្ទប់ជាង ខាងក្រៅ<br><strong style="color:#ffcc00;">២.</strong> ជាប់ជញ្ជាំងខាងក្រៅបន្ទប់ សង្គ្រោះបន្ទាន់ ខាងជើង<br><strong style="color:#ffcc00;">៣.</strong> ជាប់ជញ្ជាំងបន្ទប់ ចលនា<br><strong style="color:#ffcc00;">៤.</strong> ជាប់ជញ្ជាំងបន្ទប់ទឹក OPD<br><strong style="color:#ffcc00;">៥.</strong> លើជណ្តើរឡើងទៅ បន្ទប់រដ្ឋបាល<br><strong style="color:#ffcc00;">៦.</strong> លើជណ្តើរឡើងទៅ បន្ទប់បូមឈាម</div>`
+  },
+  { 
+    flow: "ជាន់ផ្ទាល់ដី(GF)", 
+    code: "018", 
+    numCode: "018", 
+    eng: "ASSEMBLY POINT", 
+    kh: "ទីតាំងជួបជុំពេលមានអាសន្ន", 
+    type: "ទីតាំងជួបជុំពេលមានអាសន្ន",
+    details: `<strong style="color:#00ff66; font-size:16px; border-bottom:1px dashed #00ff66; display:inline-block; margin-bottom:8px;">៧. ទីតាំងជួបជុំពេលមានអាសន្ន</strong><br><br>មន្ទីរពេទ្យមានទីតាំងជួបជុំពេលមានអាសន្ន ដើម្បីឲ្យអ្នកជំងឺ បុគ្គលិក និងភ្ញៀវប្រមូលផ្តុំបាន មានសុវត្ថិភាពក្រោយការជម្លៀស ងាយស្រួលគ្រប់គ្រងចំនួនមនុស្ស កាត់បន្ថយភាពច្របូកច្របល់ និងជួយឲ្យការគ្រប់គ្រងសង្គ្រោះបន្ទាន់ប្រព្រឹត្តទៅបានមានប្រសិទ្ធភាព។<br><br><strong style="color:#00ffff; font-size:15px; border-bottom:1px dashed #00ffff; display:inline-block; margin-bottom:6px;">ទីតាំងជួបជុំពេលមានអាសន្នមាន ០៤ គឺ៖</strong><br><br><div style="padding-left:14px; margin-top:3px; line-height:1.7; color:#ffffff;"><strong style="color:#ffcc00;">១.</strong> ខាងកើតកន្លែងរង់ចាំ OPD<br><strong style="color:#ffcc00;">២.</strong> ខាងកើតការិយាល័យ អប់រំ<br><strong style="color:#ffcc00;">៣.</strong> ច្រកសង្គ្រោះបន្ទាន់<br><strong style="color:#ffcc00;">៤.</strong> ទល់មុខសាលា ១០ មករា</div>`
+  },
+  { 
+    flow: "ជាន់ផ្ទាល់ដី(GF)", 
+    code: "019", 
+    numCode: "019", 
+    eng: "ROOM KEYS", 
+    kh: "កូនសោបន្ទប់", 
+    type: "កូនសោបន្ទប់",
+    details: `<strong style="color:#00ff66; font-size:16px; border-bottom:1px dashed #00ff66; display:inline-block; margin-bottom:8px;">៨. កូនសោបន្ទប់</strong><br><br>មន្ទីរពេទ្យបានរៀបចំកូនសោបន្ទប់សរុបចំនួន ១១៥ គ្រាប់ ដើម្បីងាយស្រួលក្នុងការគ្រប់គ្រង និងប្រើប្រាស់ពេលមានហេតុការណ៍អគ្គីភ័យកើតឡើង។`
+  },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-11", numCode: "11", eng: "LAUNDRY Room", kh: "ឃ្លាំងសំភារះបោកគក់", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "H-GF-12", numCode: "12", eng: "Sterilization", kh: "បន្ទប់កំចាត់មេរោគទ្វារលេខ១", type: "ចាប់កំដៅ (Heat)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "H-GF-13", numCode: "13", eng: "STERILZATION", kh: "បន្ទប់សំលាប់មេរោគ", type: "ចាប់កំដៅ (Heat)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-14", numCode: "14", eng: "WALK WAY DENTAL", kh: "បន្ទប់សំលាប់មេរោគ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-15", numCode: "15", eng: "DENTAL ZONE", kh: "បន្ទប់ព្យាបាលធ្មេញ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-16", numCode: "16", eng: "DENTAL Zone", kh: "បន្ទប់ព្យាបាលធ្មេញ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-17", numCode: "17", eng: "DENTAL Zone", kh: "បន្ទប់ព្យាបាលធ្មេញលេខ ៤", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-18", numCode: "18", eng: "DENTAL Zone", kh: "បន្ទប់ថត អិចសារ៉េ ធ្មេញ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "Y-GF-19", numCode: "19", eng: "INFRON STAIR", kh: "ប្រអប់ចុចប្រកាសអាសន្ន នៅមុខបន្ទប់ ម៉ូលីគុល", type: "ប្រអប់ចុចប្រកាសអាសន្ន (Break Glass)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-20", numCode: "20", eng: "CB Store UP Stair", kh: "ឃ្លាំងថ្នាំចាក់ជាន់លើ CB Store", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-21", numCode: "21", eng: "CB Store 2", kh: "ឃ្លាំងថ្នាំចាក់ CB Store ទល់(មុខឃ្លាំងកណ្តាល)", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-47", numCode: "47", eng: "Central Store", kh: "ឃ្លាំងកណ្តាល", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-48", numCode: "48", eng: "Central Store", kh: "ឃ្លាំងកណ្តាល", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-49", numCode: "49", eng: "OFFICE STORAGE 1", kh: "ការិយាល័យឃ្លាំង", type: "ចាប់ផ្សែង (Smoke)" },
+
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "Y-GF-50", numCode: "50", eng: "INFRONT EDUCATION", kh: "ប្រអប់ចុចប្រកាសអាសន្នមុខការិយាល័យអប់រំ", type: "ប្រអប់ចុចប្រកាសអាសន្ន (Break Glass)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-52", numCode: "52", eng: "OFFICE STORAGE 1", kh: "ការិយាល័យប្រធានឃ្លាំង", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-55", numCode: "55", eng: "CLASS Room A", kh: "ថ្នាក់រៀន អេ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-56", numCode: "56", eng: "Store House room", kh: "ឃ្លាំងថ្នាំគ្រាប់(ចាស់)", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-62", numCode: "62", eng: "CLASS ROOM E", kh: "ថ្នាក់រៀន អ៊ី", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-63", numCode: "63", eng: "HALL CLASS RM E&B", kh: "លើជណ្តើរថ្នាក់រៀន ឌី", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-64", numCode: "64", eng: "MEDECAL OFFICE", kh: "បន្ទប់ត្រួតពិនិត្យ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-65", numCode: "65", eng: "EDUCATION", kh: "ការិយាល័យអប់រំអ្នកជំងឺវេជ្ជសាស្ត្រ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-68", numCode: "68", eng: "ER CORRIDOR", kh: "ផ្លូវដើរក្នុងសាល អ៊ីអរ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-69", numCode: "69", eng: "ER CORRIDOR", kh: "ផ្លូវដើរក្នុងសាល អ៊ីអរ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-70", numCode: "70", eng: "CT SCAN ROOM", kh: "បន្ទប់ស៊ីធីស្កេន ទ្វារតូច", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-71", numCode: "71", eng: "CT SCAN ROOM", kh: "បន្ទប់ស៊ីធីស្កេន ទ្វារធំ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-72", numCode: "72", eng: "CORRIDOR X-RAY", kh: "ផ្លូវដើរមុខបន្ទប់ អិចសារ៉េ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-73", numCode: "73", eng: "X-RAY", kh: "បន្ទប់ថត អិចសារ៉េ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-74", numCode: "74", eng: "CORRIDOR OT", kh: "ផ្លូវដើរ អូធី", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-75", numCode: "75", eng: "SURCHURY", kh: "បន្ទប់វះកាត់ អូធី", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-76", numCode: "76", eng: "CONTRACT CORRIDOR", kh: "ផ្លូវដើរខាងក្រោយបន្ទប់ពោធី", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-77", numCode: "77", eng: "OT room", kh: "បន្ទប់ អូធី", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-78", numCode: "78", eng: "CORRIDOR OT", kh: "ផ្លូវដើរ ក្នុងអូធី", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "H-GF-79", numCode: "79", eng: "ROOF FLOOR OT", kh: "នៅលើដំបូល អូធី", type: "ចាប់កំដៅ (Heat)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-80", numCode: "80", eng: "Recovery Room", kh: "បន្ទប់ថែទាំក្រោយវះកាត់", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-85", numCode: "85", eng: "RICH STORE", kh: "កន្លែងបើកម្ហូប", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-86", numCode: "86", eng: "UL TRA SND", kh: "បន្ទប់អេកូសាស្ត្រ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-87", numCode: "87", eng: "WAITING LOUNGE", kh: "កន្លែងរង់ចាំអក្សរ ឃ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "Y-GF-88", numCode: "88", eng: "WAITING LOUNGE", kh: "ប្រអប់ចុចប្រកាសអាសន្ននៅកន្លែងរង់ចាំ OPD", type: "ប្រអប់ចុចប្រកាសអាសន្ន (Break Glass)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-93", numCode: "93", eng: "MED RECORD", kh: "កន្លែងចុះឈ្មោះអ្នកជំងឺ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-94", numCode: "94", eng: "MED RECORD", kh: "កន្លែងចុះឈ្មោះអ្នកជំងឺ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-95", numCode: "95", eng: "MED RECORD", kh: "កន្លែងចុះឈ្មោះអ្នកជំងឺ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-96", numCode: "96", eng: "MED RECORD", kh: "កន្លែងចុះឈ្មោះអ្នកជំងឺ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-97", numCode: "97", eng: "TRIAGE ROOM", kh: "បន្ទប់ពិគ្រោះជំងឺ អក្សរ ក", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-98", numCode: "98", eng: "PUMP ROOM", kh: "កន្លែងបើកមុន", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF100", numCode: "100", eng: "TRIAGE ROOM", kh: "បន្ទប់ពិគ្រោះជំងឺ អក្សរ ក", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF101", numCode: "101", eng: "TRIAGE ROOM", kh: "បន្ទប់ពិគ្រោះជំងឺ អក្សរ ក", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF102", numCode: "102", eng: "CONSUL TN", kh: "បន្ទប់ពិគ្រោះជំងឺក្រៅ OPD", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF103", numCode: "103", eng: "CONSUL TN", kh: "បន្ទប់ពិគ្រោះជំងឺក្រៅ OPD", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-104", numCode: "104", eng: "CONSUL TN", kh: "បន្ទប់ពិគ្រោះជំងឺក្រៅ OPD", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF105", numCode: "105", eng: "CONSUL TN", kh: "បន្ទប់ពិគ្រោះជំងឺក្រៅ OPD", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF107", numCode: "107", eng: "Treatment Room", kh: "បន្ទប់ព្យាបាលជំងឺ អូភីឌី (14)", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF108", numCode: "108", eng: "CORRIDOR CONSUL TN", kh: "ផ្លូវដើរ អូភីឌី", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF109", numCode: "109", eng: "ECG ROOM", kh: "បន្ទប់ អ៊ីស៊ីជី បន្ទប់ត្រួតពិនិត្យ អូភីឌី", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF110", numCode: "110", eng: "PHAMARCY", kh: "ឱសថស្ថាន", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF111", numCode: "111", eng: "Treatment Room", kh: "បន្ទប់ព្យាបាលអូភីឌី (15)", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី១(1F)", code: "M-1F 112", numCode: "112", eng: "Walk Way Admin", kh: "Break Glass មុខការិយាល័យធនធានមនុស្ស", type: "ប្រអប់ចុចប្រកាសអាសន្ន (Break Glass)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF113", numCode: "113", eng: "FRIEND CENTER", kh: "អគារពត៌មាន", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF114", numCode: "114", eng: "FRIEND CENTER", kh: "អគារពត៌មាន", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF115", numCode: "115", eng: "Visitor Center", kh: "ថ្នាក់រៀនអគារពត៌មាន", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF116", numCode: "116", eng: "Visitor Center", kh: "ថ្នាក់រៀនអគារពត៌មាន", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF117", numCode: "117", eng: "MDB FRIEND CENTER", kh: "ផ្លូវដើរបន្ទប់ទឹក អគារពត៌មាន", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី១(1F)", code: "S-GF-118", numCode: "118", eng: "FUNDRAISING DEPARTMENT", kh: "ការិយាល័យ រៃអង្គាសមូលនិធិ", type: "ចាប់ផ្សែង (Smoke)" },
+
+  // 1F Group
+  { flow: "ជាន់ទី១(1F)", code: "S-1F-22", numCode: "22", eng: "ADMIND", kh: "ការិយាល័យប្រធានរដ្ឋបាល", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី១(1F)", code: "S-1F-23", numCode: "23", eng: "ADMIND", kh: "ការិយាល័យរដ្ឋបាល", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី១(1F)", code: "S-1F-24", numCode: "24", eng: "ADMIND", kh: "ការិយាល័យរដ្ឋបាល", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី១(1F)", code: "S-1F-25", numCode: "25", eng: "HUMAN RESOUECE", kh: "ការិយាល័យធនធានមនុស្ស", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "M-GF 26", numCode: "26", eng: "Visitor Center", kh: "អាគារពត៌មាន", type: "ប្រអប់ចុចប្រកាសអាសន្ន (Break Glass)" },
+  { flow: "ជាន់ទី១(1F)", code: "S-1F-27", numCode: "27", eng: "INFRONT LIFT", kh: "កន្លែងជណ្តើរយន្ត", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី១(1F)", code: "S-1F-53", numCode: "53", eng: "STORAGE 1", kh: "ឃ្លាំងកណ្តាល ជាន់លើ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី១(1F)", code: "S-1F-54", numCode: "54", eng: "STORAGE 1", kh: "ឃ្លាំងកណ្តាល ជាន់លើ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី១(1F)", code: "S-1F-57", numCode: "57", eng: "Store House room 1F (Class room C)", kh: "(បន្ទប់ កម្មវិធីសិក្សាសកល) Global Child ចាស់", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី១(1F)", code: "S-1F-58", numCode: "58", eng: "Class Room D Sever", kh: "បន្ទប់Sever (IT ថ្នាក់ថ្មី)", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី១(1F)", code: "S-1F-59", numCode: "59", eng: "CLASS ROOM D", kh: "ថ្នាក់រៀន ឌី", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី១(1F)", code: "S-1F-60", numCode: "60", eng: "CLASS ROOM D", kh: "ថ្នាក់រៀន ឌី", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-GF-61", numCode: "61", eng: "CLASS ROOM B", kh: "ថ្នាក់រៀន ប៊ី", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី១(1F)", code: "S-1F-66", numCode: "66", eng: "NURSING OFFICE", kh: "ផ្នែកថែទាំ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី១(1F)", code: "S-1F-67", numCode: "67", eng: "NURSING OFFICE", kh: "ផ្នែកថែទាំ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-1F-81", numCode: "81", eng: "Minor Procedure", kh: "បន្ទប់កាត់តូច ជាន់ផ្ទាល់ដី", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-1F-82", numCode: "82", eng: "Dressing Change", kh: "បន្ទប់លាងរបួស ជាន់ផ្ទាល់ដី", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-1F-83", numCode: "83", eng: "Surgical Consul R 2", kh: "បន្ទប់ពិគ្រោះជំងឺវះកាត់លេខ១", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ផ្ទាល់ដី(GF)", code: "S-1F-84", numCode: "84", eng: "Surgical Consul R 1", kh: "បន្ទប់ពិគ្រោះជំងឺវះកាត់លេខ២", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី១(1F)", code: "S-1F-89", numCode: "89", eng: "MED RECORD", kh: "កន្លែងដាក់ឯកសារអ្នកជំងឺ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី១(1F)", code: "S-1F-90", numCode: "90", eng: "RG 1F Finance", kh: "បន្ទប់ដាក់ឯកសារ គណនេយ្យ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី១(1F)", code: "S-1F-91", numCode: "91", eng: "RG 1F Research", kh: "បន្ទប់ដាក់ឯកសារ គំរូ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី១(1F)", code: "S-1F-92", numCode: "92", eng: "MED RECORD", kh: "កន្លែងដាក់ឯកសារចុះឈ្មោះ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី១(1F)", code: "S-1F-119", numCode: "119", eng: "Breastfeeding Room", kh: "បន្ទប់បំបៅដោះកូន", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី១(1F)", code: "S-1F-120", numCode: "120", eng: "ROOM STAFF REST", kh: "បន្ទប់សម្រាករបស់បុគ្គលិក", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី១(1F)", code: "S-1F-121", numCode: "121", eng: "EATING HALL", kh: "កន្លែងហូបបាយ", type: "ចាប់ផ្សែង (Smoke)" },
+
+  // 2F Group
+  { flow: "ជាន់ទី២(2F)", code: "S-2F-28", numCode: "28", eng: "EXCUTIVE 3", kh: "ការិយាល័យរៃអង្គាស មូលនិធិ ក្នុងប្រទេសកម្ពុជា", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី២(2F)", code: "S-2F-29", numCode: "29", eng: "EXCUTIVE 2", kh: "ការិយាល័យរៃអង្គាស មូលនិធិ ក្នុងប្រទេសកម្ពុជា", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី២(2F)", code: "S-2F-30", numCode: "30", eng: "EXCUTIVE 3", kh: "បន្ទប់ប្រជុំអនុប្រធាន", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី២(2F)", code: "S-2F-31", numCode: "31", eng: "EXCUTIVE 2", kh: "បន្ទប់ទីប្រឹក្សាគណៈគ្រប់គ្រង", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី២(2F)", code: "S-2F-32", numCode: "32", eng: "EXCUTIVE", kh: "បន្ទប់នាយកគ្រប់គ្រង", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី២(2F)", code: "S-2F-33", numCode: "33", eng: "EXCUTIVE OFFICE", kh: "ការិយាល័យនាយកប្រតិបត្តិ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី២(2F)", code: "S-2F-34", numCode: "34", eng: "EXCUTIVE 4", kh: "បន្ទប់ប្រជុំគណៈគ្រប់គ្រង", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី២(2F)", code: "M-2F-35", numCode: "35", eng: "Walk Way EX.COM", kh: "ប្រអប់ចុចប្រកាសអាសន្ន នៅមុខការិយាល័យ គណៈគ្រប់គ្រង", type: "ប្រអប់ចុចប្រកាសអាសន្ន (Break Glass)" },
+  { flow: "ជាន់ទី២(2F)", code: "S-2F-43", numCode: "43", eng: "EXTERNAL OFFICE", kh: "ការិយាល័យ ស៊ីបី", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី២(2F)", code: "S-2F-44", numCode: "44", eng: "EXTERNAL OFFICE", kh: "ការិយាល័យ ស៊ីបី", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី២(2F)", code: "S-2F-45", numCode: "45", eng: "SAVING BABIES LIVES OFFICE", kh: "ការិយាល័យកម្មវិធីវិធីសង្គ្រោះទារក", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី២(2F)", code: "S-2F-46", numCode: "46", eng: "SAVING BABIES LIVES OFFICE", kh: "ការិយាល័យកម្មវិធីវិធីសង្គ្រោះទារក", type: "ចាប់ផ្សែង (Smoke)" },
+
+  // 3F Group
+  { flow: "ជាន់ទី៣(3F)", code: "S-3F-36", numCode: "36", eng: "RELATION", kh: "បន្ទប់ទំនាក់ទំនង (បន្ទប់ថតសូហ្វវែរ)", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី៣(3F)", code: "S-3F-37", numCode: "37", eng: "SEVER ROOM", kh: "បន្ទប់ សេវ័រ អាយធី", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី៣(3F)", code: "S-3F-38", numCode: "38", eng: "IT OFFICE", kh: "បន្ទប់ អាយធី", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី៣(3F)", code: "S-3F-39", numCode: "39", eng: "CAMRU OFFICE", kh: "បន្ទប់គំរូ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី៣(3F)", code: "S-3F-40", numCode: "40", eng: "CAMRU OFFICE", kh: "បន្ទប់គំរូ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី៣(3F)", code: "S-3F-41", numCode: "41", eng: "FINANCE OFFICE", kh: "បន្ទប់គណនេយ្យ", type: "ចាប់ផ្សែង (Smoke)" },
+  { flow: "ជាន់ទី៣(3F)", code: "Y-S-3F 42", numCode: "42", eng: "CORRIDOR", kh: "ប្រអប់ចុចប្រកាសអាសន្ន នៅមុខការិយាល័យគំរូ", type: "ប្រអប់ចុចប្រកាសអាសន្ន (Break Glass)" }
+];
+
+let currentText = "";
+let isClockActive = true;
+const screenEl = document.getElementById("screen");
+const ledAlarm = document.getElementById("led-alarm");
+const ledFault = document.getElementById("led-fault");
+let qrCodeObj = null;
+
+function renderScreenHTML(html) {
+  screenEl.innerHTML = html;
+  screenEl.scrollTop = screenEl.scrollHeight;
+}
+
+function enableWallpaper() {
+  screenEl.classList.add("has-wallpaper");
+}
+
+function disableWallpaper() {
+  screenEl.classList.remove("has-wallpaper");
+}
+
+function forceRefreshSystem() {
+  isClockActive = false;
+  disableWallpaper();
+  renderScreenHTML('<span class="lcd-prompt">កំពុងធ្វើបច្ចុប្បន្នភាពប្រព័ន្ធ...<br>សូមរង់ចាំ...</span>');
+  setTimeout(() => {
+    window.location.reload(true);
+  }, 600);
+}
+
+function showQRCodeModal() {
+  const modal = document.getElementById("qrModal");
+  const qrContainer = document.getElementById("qrcode");
+  qrContainer.innerHTML = "";
+  
+  const currentURL = window.location.href;
+
+  qrCodeObj = new QRCode(qrContainer, {
+    text: currentURL,
+    width: 160,
+    height: 160,
+    colorDark: "#000000",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+  });
+
+  modal.classList.add("active");
+}
+
+function closeQRCodeModal() {
+  document.getElementById("qrModal").classList.remove("active");
+}
+
+function triggerWallpaperUpload() {
+  document.getElementById("wallpaperInput").click();
+}
+
+function handleWallpaperChange(event) {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const imgUrl = e.target.result;
+      const style = document.createElement('style');
+      style.innerHTML = `.screen.has-wallpaper { background-image: url('${imgUrl}') !important; }`;
+      document.head.appendChild(style);
+      enableWallpaper();
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function setHeaderMode() {
+  isClockActive = false;
+  disableWallpaper();
+  currentText = "";
+  renderScreenHTML('<span class="lcd-prompt">លេខកូដ៖</span><br><span class="lcd-code">> </span>');
+}
+
+function press(typeCode) {
+  isClockActive = false;
+  disableWallpaper();
+
+  let typeName = "";
+  let matched = [];
+
+  if (typeCode === 'S') {
+    typeName = "ឧបករណ៍ចាប់ផ្សែង (Smoke Detector)";
+    matched = detectorDatabase.filter(item =>
+      item.type.includes("Smoke") || item.type.includes("ចាប់ផ្សែង") || item.code.includes("S-") || item.code.startsWith("S")
+    );
+  } else if (typeCode === 'H') {
+    typeName = "ឧបករណ៍ចាប់កំដៅ (Heat Detector)";
+    matched = detectorDatabase.filter(item =>
+      item.type.includes("Heat") || item.type.includes("ចាប់កំដៅ") || item.code.includes("H-") || item.code.startsWith("H")
+    );
+  } else if (typeCode === 'M' || typeCode === 'Y') {
+    typeName = "ប្រអប់ចុចប្រកាសអាសន្ន (Break Glass)";
+    matched = detectorDatabase.filter(item =>
+      item.type.includes("Break Glass") || item.type.includes("ប្រអប់ចុច") || item.code.includes("M-") || item.code.includes("Y-") || item.code.startsWith("M") || item.code.startsWith("Y")
+    );
+  }
+
+  ledAlarm.className = "led red-on";
+
+  let htmlContent = `
+    <div style="border-bottom: 2px solid #00ffff; padding-bottom: 6px; margin-bottom: 8px; width: 100%;">
+      <span class="lcd-code" style="color:#00ffff;">🚨 ${typeName}</span>
+      <div style="font-size: 12px; color: #33ff66;">សរុប៖ ${matched.length} ឧបករណ៍</div>
+    </div>
+  `;
+
+  if (matched.length > 0) {
+    matched.forEach((res, index) => {
+      htmlContent += `
+        <div class="floor-card">
+          <div style="font-size:15px; font-weight:bold; color:#00ffff;">${index + 1}. កូដ៖ ${res.code}</div>
+          <div class="lcd-location-kh" style="font-size:18px; margin: 2px 0;">📍 ${res.kh}</div>
+          <div class="lcd-sub-info">
+            • ឈ្មោះអង់គ្លេស៖ ${res.eng}<br>
+            • ទីតាំងជាន់៖ <span>${res.flow}</span><br>
+            • ប្រភេទ៖ ${res.type}
+          </div>
+        </div>
+      `;
+    });
+    htmlContent += `<div style="margin-top:4px; color:#00ffff; font-size:14px;">> </div>`;
+  } else {
+    htmlContent += `
+      <div class="lcd-location-kh" style="color:#ffcc00; text-shadow:none;">⚠️ មិនមានទិន្នន័យឧបករណ៍ប្រភេទនេះឡើយ</div>
+      <div style="margin-top:4px; color:#00ffff; font-size:14px;">> </div>
+    `;
+  }
+
+  renderScreenHTML(htmlContent);
+}
+
+function pressFloor(floorCode) {
+  isClockActive = false;
+  disableWallpaper();
+
+  const floorNames = {
+    'GF': 'ជាន់ផ្ទាល់ដី(GF)',
+    '1F': 'ជាន់ទី១(1F)',
+    '2F': 'ជាន់ទី២(2F)',
+    '3F': 'ជាន់ទី៣(3F)'
+  };
+
+  const targetFloorName = floorNames[floorCode] || floorCode;
+
+  const matched = detectorDatabase.filter(item => {
+    return item.code.toUpperCase().includes(floorCode.toUpperCase());
+  });
+
+  ledFault.className = "led yellow-on";
+
+  let htmlContent = `
+    <div style="border-bottom: 2px solid #00ffff; padding-bottom: 6px; margin-bottom: 8px; width: 100%;">
+      <span class="lcd-code" style="color:#00ffff;">🏢 បញ្ជីឧបករណ៍៖ ${targetFloorName}</span>
+      <div style="font-size: 12px; color: #33ff66;">សរុប៖ ${matched.length} ឧបករណ៍</div>
+    </div>
+  `;
+
+  if (matched.length > 0) {
+    matched.forEach((res, index) => {
+      const isMismatch = res.flow.trim() !== targetFloorName.trim();
+      
+      const floorDisplayClass = isMismatch ? "floor-mismatch" : "";
+      const mismatchWarning = isMismatch ? " ⚠️" : "";
+
+      htmlContent += `
+        <div class="floor-card">
+          <div style="font-size:15px; font-weight:bold; color:#00ffff;">${index + 1}. កូដ៖ ${res.code}</div>
+          <div class="lcd-location-kh" style="font-size:18px; margin: 2px 0;">📍 ${res.kh}</div>
+          <div class="lcd-sub-info">
+            • ឈ្មោះអង់គ្លេស៖ ${res.eng}<br>
+            • ទីតាំងជាន់៖ <span class="${floorDisplayClass}">${res.flow}${mismatchWarning}</span><br>
+            • ប្រភេទ៖ ${res.type}
+          </div>
+        </div>
+      `;
+    });
+    htmlContent += `<div style="margin-top:4px; color:#00ffff; font-size:14px;">> </div>`;
+  } else {
+    htmlContent += `
+      <div class="lcd-location-kh" style="color:#ffcc00; text-shadow:none;">⚠️ មិនមានទិន្នន័យឧបករណ៍ប្រចាំជាន់នេះឡើយ</div>
+      <div style="margin-top:4px; color:#00ffff; font-size:14px;">> </div>
+    `;
+  }
+
+  renderScreenHTML(htmlContent);
+}
+
+function key(v) {
+  isClockActive = false;
+  disableWallpaper();
+  currentText += v;
+  renderScreenHTML(`<span class="lcd-prompt">លេខកូដ៖</span><br><span class="lcd-code">> ${currentText}</span>`);
+}
+
+function minus() {
+  isClockActive = false;
+  disableWallpaper();
+  currentText += "-";
+  renderScreenHTML(`<span class="lcd-prompt">លេខកូដ៖</span><br><span class="lcd-code">> ${currentText}</span>`);
+}
+
+function deleteChar() {
+  if (!isClockActive && currentText.length > 0) {
+    currentText = currentText.slice(0, -1);
+    renderScreenHTML(`<span class="lcd-prompt">លេខកូដ៖</span><br><span class="lcd-code">> ${currentText}</span>`);
+
+    if (currentText === "") {
+      setHeaderMode();
+    }
+  }
+}
+
+function searchLocation() {
+  isClockActive = false;
+  disableWallpaper();
+
+  let query = currentText.trim();
+  if (!query) {
+    query = "74";
+  }
+
+  const matched = detectorDatabase.filter(item => {
+    const qUpper = query.toUpperCase();
+    return item.code.toUpperCase().includes(qUpper) || 
+           item.numCode === query || 
+           item.code.replace(/[^0-9]/g, '') === query;
+  });
+
+  let htmlContent = "";
+
+  if (matched.length > 0) {
+    const res = matched[0];
+    
+    let expectedFloor = "ជាន់ផ្ទាល់ដី(GF)";
+    if (res.code.includes("1F")) expectedFloor = "ជាន់ទី១(1F)";
+    else if (res.code.includes("2F")) expectedFloor = "ជាន់ទី២(2F)";
+    else if (res.code.includes("3F")) expectedFloor = "ជាន់ទី៣(3F)";
+
+    const isMismatch = res.flow.trim() !== expectedFloor.trim();
+    const floorDisplayClass = isMismatch ? "floor-mismatch" : "";
+    const mismatchWarning = isMismatch ? " ⚠️" : "";
+
+    const specialCodes = ["011", "012", "013", "014", "015", "016", "017", "018", "019"];
+    const isSpecialCode = specialCodes.includes(res.numCode) || specialCodes.includes(res.code);
+    const titleColor = isSpecialCode ? "#00ff66" : "#ffffff";
+
+    htmlContent = `
+      <div style="width: 100%;">
+        <div style="border-bottom: 1px dashed #33ff66; padding-bottom: 4px; margin-bottom: 4px;">
+          <span class="lcd-code">កូដ៖ ${res.code}</span>
+        </div>
+        <div class="lcd-location-kh" style="color: ${titleColor}; text-shadow: 0 0 8px ${titleColor};">📍 ${res.kh}</div>
+        <div class="lcd-sub-info">
+          • ឈ្មោះអង់គ្លេស៖ ${res.eng}<br>
+          • ទីតាំងជាន់៖ <span class="${floorDisplayClass}">${res.flow}${mismatchWarning}</span><br>
+          • ប្រភេទឧបករណ៍៖ ${res.type}
+        </div>
+        ${res.details ? `<div style="margin-top:10px; padding:10px; background:rgba(0,0,0,0.55); border:1px solid #33ff66; border-radius:6px; font-size:13px; line-height:1.6; color:#ffffff; font-family:'Battambang', 'Khmer OS Battambang', sans-serif;">${res.details}</div>` : ''}
+        <div style="margin-top:4px; color:#00ffff; font-size:14px;">> </div>
+      </div>
+    `;
+    
+    if (res.code.startsWith('H') || res.code.startsWith('S') || res.code.startsWith('M') || res.code.startsWith('Y')) {
+      ledAlarm.className = "led red-on";
+    }
+  } else {
+    htmlContent = `
+      <div style="width: 100%;">
+        <div class="lcd-code">កូដ៖ ${query}</div>
+        <div class="lcd-location-kh" style="color:#ffcc00;">⚠️ មិនទាន់មានទិន្នន័យ</div>
+        <div style="margin-top:4px; color:#00ffff; font-size:14px;">> </div>
+      </div>
+    `;
+  }
+
+  renderScreenHTML(htmlContent);
+}
+
+function clearScreen() {
+  currentText = "";
+  isClockActive = true;
+  ledAlarm.className = "led";
+  ledFault.className = "led";
+  enableWallpaper();
+  updateClock();
+}
+
+function updateClock() {
+  if (isClockActive) {
+    enableWallpaper();
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2, "0");
+    const mm = String(now.getMinutes()).padStart(2, "0");
+    const ss = String(now.getSeconds()).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    const mo = String(now.getMonth() + 1).padStart(2, "0");
+    const yyyy = now.getFullYear();
+
+    renderScreenHTML(`
+      <div class="clock-bg-box">
+        <div class="lcd-prompt" style="color:#00ff66;">ប្រព័ន្ធដំណើរការធម្មតា</div>
+        <div style="font-size: 22px; color: #00ffff; margin-top: 4px;">ម៉ោង: ${hh}:${mm}:${ss}</div>
+        <div style="font-size: 16px; color: #ffffff; margin-top: 2px;">ថ្ងៃទី: ${dd}/${mo}/${yyyy}</div>
+      </div>
+    `);
+  }
+}
+
+// ដើរម៉ោងរៀងរាល់ ១វិនាទី
+setInterval(updateClock, 1000);
+
+// បង្ហាញម៉ោងដំបូង
+updateClock();
+</script>
+
+</body>
+</html>
